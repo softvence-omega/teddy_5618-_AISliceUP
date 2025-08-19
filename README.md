@@ -37,7 +37,7 @@ expense_app-fast_api/
 - **Chat Interface**: Conversational AI for expense management
 - **Data Integration**: Fetches and processes expense data from external APIs
 - **History Management**: Maintains conversation history
-- **Health Monitoring**: Status endpoints for system monitoring
+- **Health Monitoring**: Status endpoints for system monitoring.
 
 ## Installation
 
