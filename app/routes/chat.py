@@ -49,9 +49,9 @@ async def chat_with_teddy(request: ChatRequest):
         if user_expense_data:
             # Set user-specific data for this conversation
             user_rag_instance.set_expense_data(user_expense_data)
-            print(f"✅ Loaded expense data for user: {request.user_id.strip()}")
+            print(f"Loaded expense data for user: {request.user_id.strip()}")
         else:
-            print(f"⚠️ No expense data found for user: {request.user_id.strip()}")
+            print(f"No expense data found for user: {request.user_id.strip()}")
             # Don't set any expense data, let the RAG system work with empty data
             user_rag_instance.set_expense_data(None)
         
@@ -85,63 +85,3 @@ async def chat_with_teddy(request: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing chat: {str(e)}")
 
-
-# @router.get("/history/get-history")
-# async def get_user_chat_history(userId: str = Query(..., description="User ID to fetch chat history for")):
-#     """Get chat history for a specific user - matches the API pattern: /chat/history/get-history?userId=xxx"""
-#     if not userId or not userId.strip():
-#         raise HTTPException(
-#             status_code=400, 
-#             detail="User ID is required and cannot be empty. Unable to fetch chat data without a valid user ID."
-#         )
-    
-#     try:
-#         chat_history, is_valid_user = fetch_chat_history(userId.strip())
-        
-#         if not is_valid_user:
-#             raise HTTPException(
-#                 status_code=404, 
-#                 detail=f"Unable to fetch chat data. Invalid user_id: {userId}. User not found."
-#             )
-        
-#         return {
-#             "userId": userId.strip(),
-#             "chat_history": chat_history,
-#             "total_conversations": len(chat_history),
-#             "status": "success"
-#         }
-        
-#     except HTTPException:
-#         # Re-raise HTTP exceptions
-#         raise
-#     except Exception as e:
-#         raise HTTPException(
-#             status_code=500, 
-#             detail=f"Unable to fetch chat data. Error: {str(e)}"
-#         )
-
-
-# @router.get("/history")
-# async def get_user_chat_history_legacy(user_id: str = Query(..., description="User ID to fetch chat history for")):
-#     """Legacy endpoint for getting chat history for a specific user"""
-#     if not user_id.strip():
-#         raise HTTPException(status_code=400, detail="User ID cannot be empty")
-    
-#     try:
-#         chat_history, is_valid_user = fetch_chat_history(user_id.strip())
-        
-#         if not is_valid_user:
-#             raise HTTPException(status_code=404, detail=f"Invalid user_id: {user_id}. User not found.")
-        
-#         return {
-#             "user_id": user_id.strip(),
-#             "chat_history": chat_history,
-#             "total_conversations": len(chat_history),
-#             "status": "success"
-#         }
-        
-#     except HTTPException:
-#         # Re-raise HTTP exceptions
-#         raise
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Error fetching chat history: {str(e)}")

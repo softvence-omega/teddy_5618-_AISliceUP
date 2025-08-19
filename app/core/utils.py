@@ -33,7 +33,7 @@ def fetch_expense_data(user_id: str = None) -> Optional[Dict[str, Any]]:
             return data
         else:
             # Return None if no user_id is provided since the API requires it
-            print("⚠️ No user_id provided for expense data fetch. User-specific data required.")
+            print("No user_id provided for expense data fetch. User-specific data required.")
             return None
         
     except Exception:
@@ -46,7 +46,7 @@ def fetch_user_specific_expense_data(user_id: str) -> Optional[Dict[str, Any]]:
     This function specifically handles user-based data collection for the RAG system
     """
     if not user_id or not user_id.strip():
-        print("❌ Debug: Empty user_id provided")
+        print("Debug: Empty user_id provided")
         return None
     
     # First validate that the user exists before fetching expense data
@@ -54,7 +54,7 @@ def fetch_user_specific_expense_data(user_id: str) -> Optional[Dict[str, Any]]:
     is_valid_user, validated_user_id = validate_user_exists(user_id.strip())
     
     if not is_valid_user:
-        print(f"❌ Debug: User validation failed for: {user_id.strip()}")
+        print(f"Debug: User validation failed for: {user_id.strip()}")
         return None
         
     try:
@@ -77,31 +77,31 @@ def fetch_user_specific_expense_data(user_id: str) -> Optional[Dict[str, Any]]:
                     print(f"🔍 Debug: Data keys: {list(data.keys()) if isinstance(data, dict) else 'Not a dict'}")
                     
                     if isinstance(data, dict) and data:  # Valid non-empty data
-                        print(f"✅ Debug: Valid data found with {len(data)} keys for user {validated_user_id}")
+                        print(f"Debug: Valid data found with {len(data)} keys for user {validated_user_id}")
                         return data
                     else:
-                        print("❌ Debug: Data is empty or not a dict")
+                        print("Debug: Data is empty or not a dict")
                         return None
                 except json.JSONDecodeError as e:
-                    print(f"❌ Debug: JSON decode error: {str(e)}")
+                    print(f"Debug: JSON decode error: {str(e)}")
                     return None
             elif response.status_code == 404:
-                print("❌ Debug: 404 - User not found in expense data")
+                print("Debug: 404 - User not found in expense data")
                 return None
             else:
-                print(f"❌ Debug: Unexpected status code: {response.status_code}")
+                print(f"Debug: Unexpected status code: {response.status_code}")
                 return None
                 
         except requests.exceptions.RequestException as e:
-            print(f"❌ Debug: Request exception: {str(e)}")
+            print(f"Debug: Request exception: {str(e)}")
             return None
         
         # If we reach here, the primary endpoint failed
-        print("❌ Debug: Primary endpoint failed, no fallback needed")
+        print("Debug: Primary endpoint failed, no fallback needed")
         return None
         
     except Exception as e:
-        print(f"❌ Debug: General exception: {str(e)}")
+        print(f"Debug: General exception: {str(e)}")
         return None
 
 

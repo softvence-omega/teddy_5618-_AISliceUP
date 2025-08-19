@@ -77,11 +77,11 @@ class SimpleExpenseRAG:
         self.expense_data = expense_data
         if self.expense_data:
             self.processed_chunks = self._process_data()
-            print(f"✅ Loaded {len(self.processed_chunks)} expense data chunks")
+            print(f"Loaded {len(self.processed_chunks)} expense data chunks")
         else:
             self.processed_chunks = []
             self.expense_data = None
-            print("❌ No expense data provided - will work with empty data")
+            print("No expense data provided - will work with empty data")
 
     def reset_conversation_state(self):
         """Reset conversation state for a new user session"""
@@ -94,7 +94,7 @@ class SimpleExpenseRAG:
         """Load chat history from external source or API"""
         if chat_history_data:
             self.chat_history = chat_history_data
-            print(f"✅ Loaded {len(self.chat_history)} previous conversations")
+            print(f"Loaded {len(self.chat_history)} previous conversations")
         else:
             self.chat_history = []
 
@@ -115,10 +115,10 @@ class SimpleExpenseRAG:
             # Fetch chat history for the validated user
             chat_history = fetch_chat_history_for_validated_user(validated_user_id)
             self.chat_history = chat_history
-            print(f"✅ Loaded {len(chat_history)} chat history entries for user {validated_user_id}")
+            print(f"Loaded {len(chat_history)} chat history entries for user {validated_user_id}")
             return validated_user_id
         except Exception as e:
-            print(f"❌ Error loading chat history for user {user_id}: {str(e)}")
+            print(f"Error loading chat history for user {user_id}: {str(e)}")
             raise ValueError(f"Invalid user_id: {user_id}. Unable to load chat history.")
 
     def _process_data(self) -> List[Dict]:
@@ -324,7 +324,7 @@ Guidelines:
 
     def get_data_summary(self) -> str:
         """Get a summary of available data"""
-        summary = "📊 Available Expense Data:\n\n"
+        summary = "Available Expense Data:\n\n"
         daily_count = len([c for c in self.processed_chunks if c['type'] == 'daily'])
         weekly_count = len([c for c in self.processed_chunks if c['type'] == 'weekly'])
         monthly_count = len([c for c in self.processed_chunks if c['type'] == 'monthly'])
