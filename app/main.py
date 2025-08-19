@@ -46,9 +46,9 @@ app = FastAPI(
 )
 
 # Include routers
-app.include_router(status_router)
+#app.include_router(status_router)
 app.include_router(chat_router)
-app.include_router(history_router)
+#app.include_router(history_router)
 
 
 def main():
