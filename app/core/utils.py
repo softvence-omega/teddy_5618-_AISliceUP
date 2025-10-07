@@ -16,6 +16,7 @@ def fetch_expense_data(user_id: str = None) -> Optional[Dict[str, Any]]:
             url = f"{API_BASE_URL}/report/monthly"
             params = {"userId": user_id.strip()}
             response = requests.get(url, params=params, headers=headers, timeout=30)
+            print(f"🔍 Debug: Fetching expense data for user_id={user_id.strip()}, Status Code: {response.status_code}, Response: {response.json()}")
             
             if response.status_code == 404:
                 return None

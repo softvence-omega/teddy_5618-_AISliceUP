@@ -1,12 +1,14 @@
 import json
 import os
 from datetime import datetime
+import requests
 from typing import List, Dict, Any, Optional, Tuple
 import openai
 from dotenv import load_dotenv
+from app.core.config import API_BASE_URL, OPENAI_API_KEY
 
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 class SimpleExpenseRAG:
     def __init__(self, api_base_url: str, openai_api_key: str = None):
@@ -62,7 +64,9 @@ class SimpleExpenseRAG:
                 max_tokens=15,
                 temperature=0
             )
-            return "Success! API connection is working."
+            res=response.choices[0].message.content
+            print(f"Test response: {res}")
+            return  res
         except Exception as e:
             error_msg = str(e)
             # Add details about the API key if it's an authentication issue
@@ -316,7 +320,28 @@ Guidelines:
             # Keep only last 5 exchanges in current conversation to manage memory
             if len(self.current_conversation) > 5:
                 self.current_conversation = self.current_conversation[-5:]
+                
+            print(f"Generated response: {assistant_response}")
+
+            # Save locally
+            payload = {
+                "userId": user_id,
+                "human": user_query,
+                "assistant": assistant_response
+            }
+            self.chat_history.append({"human": user_query, "assistant": assistant_response})
             
+            # Save externally via API
+            try:
+                url = f"{API_BASE_URL}/history/create-history"
+                headers = {"Content-Type": "application/json"}
+                r = requests.post(url, json=payload, headers=headers)
+                print(f"API response status: {r.status_code}, response: {r.text}")
+                if r.status_code not in (200, 201):
+                    print(f"Warning: Failed to save chat history to API: {r.text}")
+            except Exception as api_exc:
+                print(f"Error sending chat to API: {api_exc}")
+                    
             return assistant_response, validated_user_id
             
         except Exception as e:
