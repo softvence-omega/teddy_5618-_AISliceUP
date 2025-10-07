@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+.venv/
+env/
+venv/
+.env
+
+# Git
+.git
+.gitignore
+
+# System files
+*.log
+*.sqlite3
+*.db
+.DS_Store
+
+# Docker
+docker-compose.override.yml
