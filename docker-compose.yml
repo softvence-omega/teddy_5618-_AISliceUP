@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: teddy-chat-app
+    container_name: sliceup
     ports:
       - "8000:8000"
     volumes:
