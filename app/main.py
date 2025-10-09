@@ -14,6 +14,7 @@ sys.path.insert(0, str(parent_dir))
 from app.core.config import APP_TITLE, APP_DESCRIPTION, APP_VERSION
 from app.services.rag_manager import initialize_rag_system
 from app.routes.chat import router as chat_router, set_rag_instance
+from app.routes.message import router as message_router
 
 # Load environment variables
 load_dotenv()
@@ -44,6 +45,7 @@ app = FastAPI(
 startup_event()
 
 app.include_router(chat_router)
+app.include_router(message_router)
 
 @app.get("/", tags=["root"])
 def read_root():
