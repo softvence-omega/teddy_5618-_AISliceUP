@@ -56,8 +56,8 @@ async def chat_with_teddy(request: ChatRequest):
             user_rag_instance.set_expense_data(None)
         
         # Get response from RAG system - this will validate user_id existence and load user-specific chat history
-        assistant_response, validated_user_id = user_rag_instance.chat(request.message.strip(), request.user_id.strip())
-        
+        assistant_response, validated_user_id = user_rag_instance.chat(request.assistant_type, request.message.strip(), request.user_id.strip())
+
         if not assistant_response:
             raise HTTPException(status_code=500, detail="No response from assistant")
         

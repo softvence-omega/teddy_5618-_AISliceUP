@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 
 class ChatRequest(BaseModel):
+    assistant_type :str = Field(None, description="Type of assistant to use (e.g. SarcasticTruth-Teller, Supportive_Friendly)", min_length=1)
     message: str = Field(..., description="The user's message to send to the chat assistant", min_length=1)
     user_id: str = Field(..., description="The user's unique identifier (required for chat history collection)", min_length=1)
 
