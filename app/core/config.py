@@ -6,7 +6,8 @@ load_dotenv()
 
 # API Configuration
 # API_BASE_URL = "https://teddybackend-q8ki.onrender.com/api/v1"
-API_BASE_URL="https://teddybackend-mivk.onrender.com/api/v1"
+API_BASE_URL=os.getenv("API_BASE_URL")
+print(f"API_BASE_URL: {API_BASE_URL}")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # FastAPI Configuration
