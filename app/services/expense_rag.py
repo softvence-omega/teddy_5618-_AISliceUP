@@ -111,7 +111,8 @@ class SimpleExpenseRAG:
         
         # First validate the user exists
         is_valid_user, validated_user_id = validate_user_exists(user_id.strip())
-        
+        print(is_valid_user)
+        print("----------------",validated_user_id)
         if not is_valid_user:
             raise ValueError(f"Invalid user_id: {user_id}. User not found.")
         
@@ -254,99 +255,6 @@ class SimpleExpenseRAG:
         
         return "\n".join(context_parts)
 
-#     def chat(self,assistant_type:str,  user_query: str, user_id: str = None) -> Tuple[str, str]:
-#         """
-#         Main chat function with RAG implementation
-#         Returns: (assistant_response, validated_user_id)
-#         """
-        
-#         # Clear current conversation state to ensure clean slate for this user
-#         self.current_conversation = []
-        
-#         # Validate and load user-specific chat history if user_id is provided
-#         validated_user_id = ""
-#         if user_id:
-#             if not user_id.strip():
-#                 raise ValueError("Invalid user_id: User ID cannot be empty")
-            
-#             # This will raise ValueError if user doesn't exist and return validated user_id
-#             validated_user_id = self.load_user_chat_history(user_id.strip())
-#         else:
-#             # If no user_id provided, use empty chat history
-#             self.chat_history = []
-        
-#         # Build context from data and conversation history
-#         context = self._build_context(user_query)
-        
-#         # Create prompt template
-#         prompt_template = """Use the information from the context to answer the question at the end. If you don't know the answer based on the provided data, just say that you don't know, definitely do not try to make up an answer.
-
-# You are Teddy, a friendly and knowledgeable personal finance assistant. Use the expense data and conversation history to provide helpful, specific financial advice.
-
-# {context}
-
-# Question: {question}
-
-# Guidelines:
-# - If someone asks about expenses, provide a summary of all the expenses, then ask if they specifically want to know about any particular aspect.
-# - Use exact numbers from the expense data when available
-# - Be encouraging but honest about financial situations
-# - Provide specific recommendations based on the data
-# - Reference previous conversations when relevant
-# - If no relevant data is available, offer general financial advice
-# - Keep your response helpful and conversational
-# - If the user is engaging in normal conversation (greetings, casual chat), respond naturally and conversationally while maintaining your role as a finance assistant
-# """
-
-#         # Prepare the full prompt
-#         full_prompt = prompt_template.format(context=context, question=user_query)
-        
-#         try:
-#             response = self.client.chat.completions.create(
-#                 model="gpt-4o-mini",
-#                 messages=[
-#                     {"role": "system", "content": "You are Teddy, a helpful personal finance assistant."},
-#                     {"role": "user", "content": full_prompt}
-#                 ],
-#                 max_tokens=800,
-#                 temperature=0.7
-#             )
-            
-#             assistant_response = response.choices[0].message.content
-            
-#             # Add to current conversation memory
-#             self.current_conversation.append((user_query, assistant_response))
-            
-#             # Keep only last 5 exchanges in current conversation to manage memory
-#             if len(self.current_conversation) > 5:
-#                 self.current_conversation = self.current_conversation[-5:]
-                
-#             print(f"Generated response: {assistant_response}")
-
-#             # Save locally
-#             payload = {
-#                 "userId": user_id,
-#                 "human": user_query,
-#                 "assistant": assistant_response
-#             }
-#             self.chat_history.append({"human": user_query, "assistant": assistant_response})
-            
-#             # Save externally via API
-#             try:
-#                 url = f"{API_BASE_URL}/history/create-history"
-#                 headers = {"Content-Type": "application/json"}
-#                 r = requests.post(url, json=payload, headers=headers)
-#                 print(f"API response status: {r.status_code}, response: {r.text}")
-#                 if r.status_code not in (200, 201):
-#                     print(f"Warning: Failed to save chat history to API: {r.text}")
-#             except Exception as api_exc:
-#                 print(f"Error sending chat to API: {api_exc}")
-                    
-#             return assistant_response, validated_user_id
-            
-#         except Exception as e:
-#             return f"Error generating response: {str(e)}", validated_user_id
-
     def chat(self, assistant_type: str, user_query: str, user_id: str = None) -> Tuple[str, str]:
         """
         Main chat function with RAG implementation
@@ -392,13 +300,16 @@ class SimpleExpenseRAG:
             - Always stay relevant and professional
         """
 
-        # Select personality prompt dynamically
-        if assistant_type == "Supportive_Friendly":
+        # Convert input to lowercase for case-insensitive comparison
+        assistant_type_lower = assistant_type.lower()
+
+        if assistant_type_lower == "supportive_friendly":
             personality_prompt = SUPPORTIVE_FRIENDLY_PROMPT
-        elif assistant_type == "SarcasticTruth-Teller":
+        elif assistant_type_lower == "sarcastictruth-teller":
             personality_prompt = SARCASTIC_TRUTH_TELLER_PROMPT
         else:
             personality_prompt = SUPPORTIVE_FRIENDLY_PROMPT  # default fallback
+
 
         # Base prompt template
         base_prompt_template = """
@@ -490,3 +401,19 @@ class SimpleExpenseRAG:
             summary += f"Date range: {min(daily_dates)} to {max(daily_dates)}\n"
         
         return summary
+    
+    
+if __name__ == "__main__":
+    user_id = "68ef282e0403caab6c0cadf4"
+    assistant_type = "supportive_friendly"
+    message = "hi"
+    
+    # ✅ Pass the API_BASE_URL
+    chat = SimpleExpenseRAG(api_base_url=API_BASE_URL)
+    
+    msg, validated_user_id = chat.chat(
+        assistant_type=assistant_type,
+        user_query=message,
+        user_id=user_id
+    )
+    print(msg)

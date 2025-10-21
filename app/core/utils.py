@@ -106,47 +106,92 @@ def fetch_user_specific_expense_data(user_id: str) -> Optional[Dict[str, Any]]:
         return None
 
 
+# def validate_user_exists(user_id: str) -> Tuple[bool, str]:
+#     """
+#     Validate if a user exists by checking with the API
+#     Returns: (is_valid_user, actual_user_id_from_response)
+#     """
+#     if not user_id or not user_id.strip():
+#         return False, ""
+        
+#     try:
+#         # First, try to get user info or validate user existence
+#         headers = {
+#             "Content-Type": "application/json"
+#         }
+#         url = f"{API_BASE_URL}/history/get-history"
+#         params = {"userId": user_id.strip()}
+        
+#         response = requests.get(url, params=params, headers=headers, timeout=30)
+#         print("===============================",response)
+        
+#         if response.status_code == 200:
+#             try:
+#                 response_data = response.json()
+#                 if isinstance(response_data, list):
+#                     # User exists and has history or empty history
+#                     return True, user_id.strip()
+#                 else:
+#                     return False, ""
+#             except json.JSONDecodeError:
+#                 return False, ""
+#         elif response.status_code == 404:
+#             # User not found
+#             return False, ""
+#         elif response.status_code == 400:
+#             # Bad request - invalid user_id format
+#             return False, ""
+#         else:
+#             # For other status codes, treat as invalid user
+#             return False, ""
+            
+#     except Exception:
+#         return False, ""
+
 def validate_user_exists(user_id: str) -> Tuple[bool, str]:
     """
-    Validate if a user exists by checking with the API
+    Validate if a user exists by checking with the API.
     Returns: (is_valid_user, actual_user_id_from_response)
     """
     if not user_id or not user_id.strip():
         return False, ""
         
     try:
-        # First, try to get user info or validate user existence
-        headers = {
-            "Content-Type": "application/json"
-        }
+        headers = {"Content-Type": "application/json"}
         url = f"{API_BASE_URL}/history/get-history"
         params = {"userId": user_id.strip()}
         
         response = requests.get(url, params=params, headers=headers, timeout=30)
+        print("===============================", response)
         
         if response.status_code == 200:
             try:
                 response_data = response.json()
-                if isinstance(response_data, list):
-                    # User exists and has history or empty history
+                
+                # ✅ FIX: Check for dict structure with "data" key
+                if isinstance(response_data, dict) and "data" in response_data:
+                    data_list = response_data["data"]
+                    if isinstance(data_list, list):
+                        print(f"✅ User validated successfully. Found {len(data_list)} history records.")
+                        return True, user_id.strip()
+                    else:
+                        print("⚠️ 'data' key not a list — unexpected structure.")
+                        return False, ""
+                elif isinstance(response_data, list):
+                    # Fallback if API ever returns list directly
                     return True, user_id.strip()
                 else:
+                    print("⚠️ Unexpected response format from API.")
                     return False, ""
+                    
             except json.JSONDecodeError:
                 return False, ""
-        elif response.status_code == 404:
-            # User not found
-            return False, ""
-        elif response.status_code == 400:
-            # Bad request - invalid user_id format
-            return False, ""
         else:
-            # For other status codes, treat as invalid user
             return False, ""
             
-    except Exception:
+    except Exception as e:
+        print(f"⚠️ Exception in validate_user_exists: {e}")
         return False, ""
-
 
 def fetch_chat_history_for_validated_user(user_id: str) -> List[Dict[str, Any]]:
     """
@@ -161,10 +206,12 @@ def fetch_chat_history_for_validated_user(user_id: str) -> List[Dict[str, Any]]:
         params = {"userId": user_id}
         
         response = requests.get(url, params=params, headers=headers, timeout=30)
+        print("--------------------------",response)
         
         if response.status_code == 200:
             try:
                 history_data = response.json()
+                print(history_data )
                 if isinstance(history_data, list):
                     return history_data
             except json.JSONDecodeError:
@@ -176,6 +223,52 @@ def fetch_chat_history_for_validated_user(user_id: str) -> List[Dict[str, Any]]:
         return []
 
 
+# def fetch_chat_history(user_id: str) -> Tuple[List[Dict[str, Any]], bool]:
+#     """
+#     Fetch previous chat history from the API
+#     Returns: (chat_history, is_valid_user)
+#     """
+#     if not user_id or not user_id.strip():
+#         return [], False
+        
+#     try:
+#         headers = {
+#             "Content-Type": "application/json"
+#         }
+#         url = f"{API_BASE_URL}/history/get-history"
+#         params = {"userId": user_id.strip()}
+        
+#         response = requests.get(url, params=params, headers=headers, timeout=30)
+#         print(response)
+        
+#         if response.status_code == 200:
+#             try:
+#                 history_data = response.json()
+#                 if isinstance(history_data, list):
+#                     return history_data, True
+#                 else:
+#                     # Invalid response format
+#                     return [], False
+#             except json.JSONDecodeError:
+#                 # Invalid JSON response
+#                 return [], False
+#         elif response.status_code == 404:
+#             # User not found - invalid user_id
+#             return [], False
+#         elif response.status_code == 400:
+#             # Bad request - likely invalid user_id format
+#             return [], False
+#         else:
+#             # For other status codes (500, 503, etc.), treat as invalid user
+#             return [], False
+            
+#     except requests.exceptions.RequestException:
+#         # Network error - treat as invalid user to be safe
+#         return [], False
+#     except Exception:
+#         # Any other error - treat as invalid user
+#         return [], False
+
 def fetch_chat_history(user_id: str) -> Tuple[List[Dict[str, Any]], bool]:
     """
     Fetch previous chat history from the API
@@ -185,42 +278,44 @@ def fetch_chat_history(user_id: str) -> Tuple[List[Dict[str, Any]], bool]:
         return [], False
         
     try:
-        headers = {
-            "Content-Type": "application/json"
-        }
+        headers = {"Content-Type": "application/json"}
         url = f"{API_BASE_URL}/history/get-history"
         params = {"userId": user_id.strip()}
         
         response = requests.get(url, params=params, headers=headers, timeout=30)
-        
+        print(f"DEBUG STATUS={response.status_code}, BODY={response.text}")
+
         if response.status_code == 200:
             try:
                 history_data = response.json()
-                if isinstance(history_data, list):
+
+                # ✅ FIX: Extract data from "data" key if it exists
+                if isinstance(history_data, dict) and "data" in history_data:
+                    chat_list = history_data.get("data", [])
+                    if isinstance(chat_list, list):
+                        print(f"✅ Found {len(chat_list)} history records.")
+                        return chat_list, True
+                    else:
+                        print("⚠️ 'data' key is not a list.")
+                        return [], False
+
+                elif isinstance(history_data, list):  
+                    # Fallback — in case API ever returns a list directly
                     return history_data, True
                 else:
-                    # Invalid response format
+                    print("⚠️ Unexpected JSON structure.")
                     return [], False
-            except json.JSONDecodeError:
-                # Invalid JSON response
+
+            except json.JSONDecodeError as e:
+                print("⚠️ JSON decode error", e)
                 return [], False
-        elif response.status_code == 404:
-            # User not found - invalid user_id
-            return [], False
-        elif response.status_code == 400:
-            # Bad request - likely invalid user_id format
-            return [], False
         else:
-            # For other status codes (500, 503, etc.), treat as invalid user
+            print(f"⚠️ Unexpected status: {response.status_code}")
             return [], False
             
-    except requests.exceptions.RequestException:
-        # Network error - treat as invalid user to be safe
+    except Exception as e:
+        print("⚠️ fetch_chat_history Exception:", e)
         return [], False
-    except Exception:
-        # Any other error - treat as invalid user
-        return [], False
-
 
 def validate_and_send_to_history(user_message: str, assistant_response: str, user_id: str) -> bool:
     """
@@ -279,3 +374,23 @@ def send_to_history(user_message: str, assistant_response: str, user_id: str) ->
             
     except Exception:
         return False
+
+
+# ===============================
+# 🚀 Example Usage
+# ===============================
+if __name__ == "__main__":
+
+
+    user_id = "68ef282e0403caab6c0cadf4"
+    l,i=validate_user_exists(user_id=user_id)
+    print(f"{l}---------------{i}")
+    history, is_valid =fetch_chat_history(user_id)
+    
+    print(history)
+    his=fetch_chat_history_for_validated_user(user_id)
+    print("his----------",his)
+    if is_valid:
+        print(f"✅ Valid user. {len(history)} chat records retrieved.")
+    else:
+        print("❌ Invalid or unrecognized user.")
