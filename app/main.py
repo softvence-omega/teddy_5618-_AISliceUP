@@ -85,6 +85,8 @@
 # if __name__ == "__main__":
 #     main()
 # main.py
+import utils.transport
+import utils.session
 import uvicorn
 import os
 import sys

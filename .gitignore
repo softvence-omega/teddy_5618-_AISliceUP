@@ -120,7 +120,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -200,10 +199,6 @@ logs/
 *.sqlite3
 
 # API Keys and sensitive files
-.env
-.env.local
-.env.production
-.env.staging
 secrets.json
 config.json
 
@@ -234,3 +229,5 @@ debug_*
 branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
+config.bat
+node_modules
